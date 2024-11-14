@@ -106,6 +106,7 @@ void BlockAssembler::resetBlock()
     nFees = 0;
 }
 
+// TODO-createnewblock
 std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
 {
     const auto time_start{SteadyClock::now()};
@@ -288,6 +289,7 @@ void BlockAssembler::SortForBlock(const CTxMemPool::setEntries& package, std::ve
 // Each time through the loop, we compare the best transaction in
 // mapModifiedTxs with the next transaction in the mempool to decide what
 // transaction package to work on next.
+// TODO-createnewblock: The algorithm for ordering transactions within a block
 void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSelected, int& nDescendantsUpdated)
 {
     AssertLockHeld(mempool.cs);

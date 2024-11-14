@@ -1837,6 +1837,7 @@ bool PeerManagerImpl::BlockRequestAllowed(const CBlockIndex* pindex)
            (GetBlockProofEquivalentTime(*m_chainman.m_best_header, *pindex, *m_chainman.m_best_header, m_chainparams.GetConsensus()) < STALE_RELAY_AGE_LIMIT);
 }
 
+// TODO-1: Seems useful
 std::optional<std::string> PeerManagerImpl::FetchBlock(NodeId peer_id, const CBlockIndex& block_index)
 {
     if (m_chainman.m_blockman.LoadingBlocks()) return "Loading blocks ...";
@@ -1859,6 +1860,7 @@ std::optional<std::string> PeerManagerImpl::FetchBlock(NodeId peer_id, const CBl
     // Construct message to request the block
     const uint256& hash{block_index.GetBlockHash()};
     std::vector<CInv> invs{CInv(MSG_BLOCK | MSG_WITNESS_FLAG, hash)};
+
 
     // Send block request message to the peer
     bool success = m_connman.ForNode(peer_id, [this, &invs](CNode* node) {

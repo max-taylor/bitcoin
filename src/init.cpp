@@ -109,6 +109,8 @@
 
 #include <boost/signals2/signal.hpp>
 
+#include <kimber/block_listener.h>
+
 #ifdef ENABLE_ZMQ
 #include <zmq/zmqabstractnotifier.h>
 #include <zmq/zmqnotificationinterface.h>
@@ -1998,6 +2000,9 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
     }, DUMP_BANS_INTERVAL);
 
     if (node.peerman) node.peerman->StartScheduledTasks(scheduler);
+
+    StartL1BlockListener();
+
 
 #if HAVE_SYSTEM
     StartupNotify(args);

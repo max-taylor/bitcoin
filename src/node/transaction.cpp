@@ -31,6 +31,7 @@ static TransactionError HandleATMPError(const TxValidationState& state, std::str
     }
 }
 
+// TODO-sendrawtransaction
 TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef tx, std::string& err_string, const CAmount& max_tx_fee, bool relay, bool wait_callback)
 {
     // BroadcastTransaction can be called by RPC or by the wallet.
