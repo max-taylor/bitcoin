@@ -2,9 +2,6 @@
 #define BITCOIN_RPC_CLIENT_H
 
 #include <string>
-#include <array>
-#include <memory>
-#include <stdexcept>
 
 class BitcoinRPCClient {
 public:
@@ -36,6 +33,32 @@ public:
      * @throws std::runtime_error if the request fails
      */
     std::string getBestBlockHash();
+
+    /**
+     * @brief Gets the hash of a block at a given height
+     * @param height The height of the block
+     * @return The block hash as a string
+     * @throws std::runtime_error if the request fails
+     */
+    std::string getBlockHashByHeight(int height);
+
+
+    /**
+     * @brief Gets the block data for a given block hash
+     * @param blockHash The hash of the block
+     * @return The block data as a string
+     * @throws std::runtime_error if the request fails
+     */
+    std::string getBlockByHash(const std::string& blockHash);
+
+
+// // std::vector<UniValue> BitcoinRPCClient::getTransactionsFromLatestBlock() {
+//     /**
+//      * @brief Gets the transactions from the latest block
+//      * @return A vector of transaction objects
+//      * @throws std::runtime_error if the request fails
+//      */
+//     std::vector<UniValue> getTransactionsFromLatestBlock();
 
 private:
     std::string host;
