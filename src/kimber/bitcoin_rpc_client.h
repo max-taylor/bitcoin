@@ -1,6 +1,7 @@
 #ifndef BITCOIN_RPC_CLIENT_H
 #define BITCOIN_RPC_CLIENT_H
 
+#include <univalue.h>
 #include <string>
 
 class BitcoinRPCClient {
@@ -52,13 +53,12 @@ public:
     std::string getBlockByHash(const std::string& blockHash);
 
 
-// // std::vector<UniValue> BitcoinRPCClient::getTransactionsFromLatestBlock() {
-//     /**
-//      * @brief Gets the transactions from the latest block
-//      * @return A vector of transaction objects
-//      * @throws std::runtime_error if the request fails
-//      */
-//     std::vector<UniValue> getTransactionsFromLatestBlock();
+    /**
+     * @brief Tries to get a sequencer transaction from the latest block
+     * @return A UniValue object representing the transaction
+     * @throws std::runtime_error if the request fails
+     */
+    std::optional<UniValue> getSequencerTransactionFromLatestBlock();
 
 private:
     std::string host;

@@ -285,6 +285,7 @@ add_library(bitcoin_node STATIC EXCLUDE_FROM_ALL
   versionbits.cpp
   kimber/block_listener.cpp
   kimber/bitcoin_rpc_client.cpp
+  kimber/utils/sequencer_transaction_parser.cpp
   $<$<TARGET_EXISTS:bitcoin_wallet>:wallet/init.cpp>
   $<$<NOT:$<TARGET_EXISTS:bitcoin_wallet>>:dummywallet.cpp>
 )
