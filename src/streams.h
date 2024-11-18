@@ -6,6 +6,7 @@
 #ifndef BITCOIN_STREAMS_H
 #define BITCOIN_STREAMS_H
 
+#include "primitives/transaction.h"
 #include <serialize.h>
 #include <span.h>
 #include <support/allocators/zeroafterfree.h>
@@ -192,6 +193,12 @@ public:
     {
         vch.erase(vch.begin(), vch.begin() + m_read_pos);
         m_read_pos = 0;
+    }
+
+    template<typename T>
+    TransactionSerParams GetParams() const
+    {
+        return TX_WITH_WITNESS;
     }
 
     bool Rewind(std::optional<size_type> n = std::nullopt)
