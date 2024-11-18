@@ -1,9 +1,9 @@
 #include "bitcoin_rpc_client.h"
+#include "primitives/transaction.h"
 #include <univalue.h>
 #include <cstdio>
 #include <iostream>
 #include <ostream>
-#include <streams.h>
 #include <span.h>
 #include <util/strencodings.h>  // for ParseHex
 
@@ -90,6 +90,13 @@ std::string BitcoinRPCClient::getBlockByHash(const std::string& blockHash) {
 //     } catch (const std::exception& e) {
 //         throw std::runtime_error(std::string("Failed to deserialize transaction: ") + e.what());
 //     }
+// }
+
+// CTransaction ParseTransaction(const std::vector<unsigned char>& rawTxData) {
+//     DataStream stream(rawTxData);
+//     CMutableTransaction mutableTx;
+//     stream >> mutableTx;
+//     return CTransaction(mutableTx);
 // }
 
 std::optional<UniValue> BitcoinRPCClient::getSequencerTransactionFromLatestBlock() {

@@ -2001,7 +2001,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
 
     if (node.peerman) node.peerman->StartScheduledTasks(scheduler);
 
-    StartL1BlockListener();
+    StartL1BlockListener(node);
 
 
 #if HAVE_SYSTEM

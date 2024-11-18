@@ -1,6 +1,7 @@
 #ifndef L1_BLOCK_LISTENER_H
 #define L1_BLOCK_LISTENER_H
 
+#include "node/context.h"
 #include <string>
 
 // Predefined sender address to filter
@@ -51,6 +52,6 @@ extern const std::string predefinedSenderAddress;
  * the Bitcoin L1 network by polling for the latest block and filtering
  * transactions from the predefined sender address.
  */
-void StartL1BlockListener();
+void StartL1BlockListener(node::NodeContext& context);
 
 #endif  // L1_BLOCK_LISTENER_H
