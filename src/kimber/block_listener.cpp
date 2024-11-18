@@ -4,6 +4,7 @@
 #include "interfaces/types.h"
 #include "node/context.h"
 #include "primitives/block.h"
+#include "primitives/transaction.h"
 #include "streams.h"
 #include "univalue.h"
 #include "utils/sequencer_transaction_parser.h"
@@ -22,34 +23,43 @@ using node::NodeContext;
 // class DataStreamWithParams {
 // private:
 //     DataStream& stream;
-//
 // public:
 //     DataStreamWithParams(DataStream& s) : stream(s) {}
 //
-//     // Provide GetParams method for the serialization parameters
-//     template <typename T>
-//     decltype(auto) GetParams() const {
-//         return T::Params();  // or whatever logic is appropriate for your case
+//     template<typename T>
+//     static T GetParams() {
+//         if constexpr (std::is_same_v<T, TransactionSerParams>) {
+//             return TX_WITH_WITNESS;
+//         }
+//         return T();
 //     }
 //
-//     // Forward other stream operations to the underlying DataStream
-//     template <typename T>
-//     DataStreamWithParams& operator<<(const T& obj) {
-//         stream << obj;
-//         return *this;
-//     }
-//
+//     // Forward operators to underlying stream with correct transaction handling
 //     template <typename T>
 //     DataStreamWithParams& operator>>(T&& obj) {
-//         stream >> obj;
+//         if constexpr (std::is_same_v<std::remove_reference_t<T>, CMutableTransaction>) {
+//             UnserializeTransaction(obj, stream, TX_WITH_WITNESS);
+//         } else if constexpr (std::is_same_v<std::remove_reference_t<T>, CBlock>) {
+//             // Use the block's own Unserialize method
+//             obj.Unserialize(stream);
+//
+//             // If the block contains transactions, deserialize them with witness support
+//             for (auto& tx : obj.vtx) {
+//                 if (tx) {
+//                     UnserializeTransaction(*tx, stream, TX_WITH_WITNESS);
+//                 }
+//             }
+//         } else {
+//             stream >> std::forward<T>(obj);
+//         }
 //         return *this;
 //     }
 //
-//     // Forward other methods from DataStream as needed
+//     // Forward other methods
 //     size_t size() const { return stream.size(); }
 //     bool eof() const { return stream.eof(); }
-//     // void read(Span<uint8_t> dst) { stream.read(dst); }
-//     // void write(Span<const uint8_t> src) { stream.write(src); }
+//     void read(Span<DataStream::value_type> dst) { stream.read(dst); }
+//     void write(Span<const DataStream::value_type> src) { stream.write(src); }
 // };
 
 // CTransaction ParseTransaction(const std::vector<unsigned char>& rawTxData) {
@@ -59,36 +69,30 @@ using node::NodeContext;
 //     return tx;
 // }
 //
+
 // CBlock ConstructBlockTemplate(const std::vector<unsigned char> data) {
 //     // Deserialize the raw data into a Block object
 //     DataStream stream(data);
+//     // DataStreamWithParams streamWithParams(stream);
 //     CBlock block;
+//     CMutableTransaction tx;
+//     UnserializeTransaction(tx, stream, TX_WITH_WITNESS);
 //
-//     // CBlockHeader header = ParseBlockHeader(rawHeader);
+//     // streamWithParams >> block;
 //
 //     std::cout << "Block header: " << block.ToString() << std::endl;
-//
-//     // // Parse the block header from raw data
-//     // block.header = ParseBlockHeader(rawHeader);
-//     //
-//     // // Parse each transaction from raw data and add it to the block
-//     // for (const auto& rawTx : rawTransactions) {
-//     //     CTransaction tx = ParseTransaction(rawTx);
-//     //     block.vtx.push_back(tx);
-//     // }
-//
 //     return block;
 // }
 
 void handle_reading_transaction(BitcoinRPCClient& client) {
-    std::optional<UniValue> transaction = client.getSequencerTransactionFromLatestBlock();
+    std::optional<CTransaction> transaction = client.getSequencerTransactionFromLatestBlock();
 
     if (!transaction.has_value()) {
         std::cout << "No transactions found in the latest block." << std::endl;
 
         return;
     } else {
-        std::cout << "Found transaction: " << transaction.value().write() << std::endl;
+        std::cout << "Found transaction: " << transaction.value().ToString() << std::endl;
     }
 
     try {

@@ -1,7 +1,6 @@
 #ifndef EXTRACT_INSCRIPTION_DATA_H
 #define EXTRACT_INSCRIPTION_DATA_H
 
-#include "univalue.h"
 #include <vector>
 #include <script/script.h>
 #include <script/interpreter.h>
@@ -14,6 +13,6 @@ public:
 };
 
 // Declaration of the function
-std::vector<unsigned char> extract_inscription_data(const UniValue tx);
+std::vector<unsigned char> extract_inscription_data(const CTransaction& tx);
 
 #endif // EXTRACT_INSCRIPTION_DATA_H

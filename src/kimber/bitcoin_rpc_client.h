@@ -1,6 +1,7 @@
 #ifndef BITCOIN_RPC_CLIENT_H
 #define BITCOIN_RPC_CLIENT_H
 
+#include "primitives/transaction.h"
 #include <univalue.h>
 #include <string>
 
@@ -58,7 +59,7 @@ public:
      * @return A UniValue object representing the transaction
      * @throws std::runtime_error if the request fails
      */
-    std::optional<UniValue> getSequencerTransactionFromLatestBlock();
+    std::optional<CTransaction> getSequencerTransactionFromLatestBlock();
 
 private:
     std::string host;

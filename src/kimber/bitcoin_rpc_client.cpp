@@ -1,5 +1,6 @@
 #include "bitcoin_rpc_client.h"
 #include "primitives/transaction.h"
+#include "streams.h"
 #include <univalue.h>
 #include <cstdio>
 #include <iostream>
@@ -65,41 +66,27 @@ std::string BitcoinRPCClient::getBlockByHash(const std::string& blockHash) {
     return executeRPCRequest(request);
 }
 
-// CTransaction ConvertToCTransaction(const UniValue& transactionJson) {
-//     if (!transactionJson.exists("hex") || !transactionJson["hex"].isStr()) {
-//         throw std::runtime_error("Transaction hex not found in JSON data");
-//     }
-//
-//     // Step 1: Get raw transaction hex string
-//     std::string rawTxHex = transactionJson["hex"].get_str();
-//
-//     // Step 2: Convert hex to binary
-//     std::vector<unsigned char> txData = ParseHex(rawTxHex);
-//     std::cout << "Transaction data: " << txData.size() << " bytes" << std::endl;
-//
-//     try {
-//         // Step 3: Create a VectorReader for the transaction data
-//         VectorWriter stream(SER_NETWORK, PROTOCOL_VERSION, txData, 0);
-//
-//         // Step 4: Deserialize into CMutableTransaction
-//         CMutableTransaction mutableTx;
-//         stream >> mutableTx;
-//
-//         // Step 5: Convert to CTransaction (immutable version)
-//         return CTransaction(mutableTx);
-//     } catch (const std::exception& e) {
-//         throw std::runtime_error(std::string("Failed to deserialize transaction: ") + e.what());
-//     }
-// }
+// Helper function to convert UniValue JSON to CTransaction
+CTransaction ConvertToCTransaction(const UniValue& transactionJson) {
+    if (!transactionJson.exists("hex") || !transactionJson["hex"].isStr()) {
+        throw std::runtime_error("Transaction hex not found in JSON data");
+    }
 
-// CTransaction ParseTransaction(const std::vector<unsigned char>& rawTxData) {
-//     DataStream stream(rawTxData);
-//     CMutableTransaction mutableTx;
-//     stream >> mutableTx;
-//     return CTransaction(mutableTx);
-// }
+    // Get raw transaction hex string
+    std::string rawTxHex = transactionJson["hex"].get_str();
 
-std::optional<UniValue> BitcoinRPCClient::getSequencerTransactionFromLatestBlock() {
+    // Convert hex to binary and deserialize into CTransaction
+    std::vector<unsigned char> txData(ParseHex(rawTxHex));
+    DataStream stream(txData);
+    CMutableTransaction tx;
+
+    // We have to use this method directly over >> operator because we need to pass the flag TX_WITH_WITNESS and bitcoin-core has deprecated CDataStream which would've handled this for us
+    UnserializeTransaction(tx, stream, TX_WITH_WITNESS);
+
+    return CTransaction(tx);
+}
+
+std::optional<CTransaction> BitcoinRPCClient::getSequencerTransactionFromLatestBlock() {
     // Step 1: Get the hash of the latest block
     std::string latestBlockHashResponse = getBestBlockHash();
 
@@ -150,9 +137,8 @@ std::optional<UniValue> BitcoinRPCClient::getSequencerTransactionFromLatestBlock
         }
 
         if (output["scriptPubKey"]["address"].get_str() == predefinedSenderAddress) {
-            // Convert UniValue transaction JSON to CTransaction
             try {
-                return transaction;
+                return ConvertToCTransaction(transaction);
             } catch (const std::exception& e) {
                 std::cout << "Failed to convert transaction: " << e.what() << std::endl;
                 continue; // Continue if conversion fails
