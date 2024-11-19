@@ -1045,11 +1045,12 @@ bool BlockManager::ReadBlockFromDisk(CBlock& block, const FlatFilePos& pos) cons
         return false;
     }
 
-    // Check the header
-    if (!CheckProofOfWork(block.GetHash(), block.nBits, GetConsensus())) {
-        LogError("%s: Errors in block header at %s\n", __func__, pos.ToString());
-        return false;
-    }
+    // NOTE: Disabling POW
+    // // Check the header
+    // if (!CheckProofOfWork(block.GetHash(), block.nBits, GetConsensus())) {
+    //     LogError("%s: Errors in block header at %s\n", __func__, pos.ToString());
+    //     return false;
+    // }
 
     // Signet only: check block solution
     if (GetConsensus().signet_blocks && !CheckSignetBlockSolution(block, GetConsensus())) {
